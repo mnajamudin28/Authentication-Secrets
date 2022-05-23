@@ -1,11 +1,12 @@
 //jshint esversion:6
 require('dotenv').config();
-const express = require ('express')
-const bodyParser = require ('body-parser')
-const ejs = require ('ejs')
-const mongoose = require('mongoose')
-const bcrypt = require ('bcrypt');
-const saltRounds = 10;
+const express = require ('express');
+const bodyParser = require ('body-parser');
+const ejs = require ('ejs');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const passport = require ("passport");
+const passportLocalMongoose = require ("passport-local-mongoose");
 
 
 const app = express()
@@ -19,6 +20,12 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 
 mongoose.connect("mongodb://localhost:27017/userDB", {useNewUrlParser: true});
+
+app.use(session({
+    secret: "Our little secret.",
+    resave: false,
+    saveUninitialized: false
+}))
 
 const userSchema = new mongoose.Schema({//new mongoose.Schema menambahkan kelas schema
     email: String,
@@ -62,23 +69,7 @@ app.post("/register", function(req,res){
 });
 
 app.post("/login", function(req,res){
-    const username = req.body.username;
-    const password = req.body.password;
-
-    User.findOne({email: username}, function(err, foundUser){
-        if(err){
-            console.log(err);
-        }else{
-            if(foundUser){
-                bcrypt.compare(password, foundUser.password, function (err, result) {
-                    if(result === true){
-                        res.render("secrets")
-                    } 
-                });      
-                }
-            }
-        
-    });
+    
 });
 
 
